@@ -1,3 +1,7 @@
+/* The FileHandler class provides the user with an interface to 
+ * use in order to select the arff files to be processed.
+ * */
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
