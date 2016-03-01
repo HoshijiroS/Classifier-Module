@@ -1,17 +1,19 @@
-/* The DataHandler class takes the arff file as input and returns 
- * the relevant data of the file for the models to use such as:
+/*
+ * The DataHandler class takes the arff file as input and returns the relevant data of the file for
+ * the models to use such as:
  * 
- * size: the number of instances the arff file has.
- * classIndex: the index of the class attribute.
- * classInstanceCount: number of class attributes the arff file has.
- * split: all instances of the dataset divided into a training set
- * and a testing set.
+ * size: the number of instances the arff file has. classIndex: the index of the class attribute.
  * 
- * trainingSplits: training split of the dataset.
+ * classInstanceCount: number of class attributes the arff file has. split: all instances of the
+ * 
+ * dataset divided into a training set and a testing set.
+ * 
+ * trainingSplits: training split of the dataset. 
+ * 
  * testingSplits: testing split of the dataset.
- * classInstances: the list of all class attributes in a readable 
- * String format.
- * */
+ * 
+ * classInstances: the list of all class attributes in a readable String format.
+ */
 
 import java.io.BufferedReader;
 import java.io.IOException;

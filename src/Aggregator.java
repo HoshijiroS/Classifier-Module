@@ -1,14 +1,19 @@
-/* The Aggregator class takes the input of other models in order to 
- * produce classifications with varying probabilities and a single 
- * classification made by a meta-classifier.
+/*
+ * The Aggregator class takes the input of other models in order to produce classifications with
+ * varying probabilities and a single classification made by a meta-classifier.
  * 
  * Parameters are: 
- * model: the models to be aggregated.
- * predictionPerModel: predictions produced by each model.
- * dataClasses: classes (in String) of the arff file.
- * numInstances: the number of instances the arff file has.
+ * model: the models to be aggregated. 
+ * 
+ * predictionPerModel: predictions produced by
+ * each model. 
+ * 
+ * dataClasses: classes (in String) of the arff file. 
+ * 
+ * numInstances: the number of instances the arff file has. 
+ * 
  * numClasses: number of classes the arff file has.
- * */
+ */
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +36,7 @@ public class Aggregator {
    private int numClasses;
 
    public Aggregator(Classifier[] model, HashMap<Integer, Model> predictionPerModel,
-                     String[] dataClasses, int numInstances, int numClasses) {
+         String[] dataClasses, int numInstances, int numClasses) {
       this.models = model;
       this.predictionPerModel = predictionPerModel;
       this.numInstances = numInstances;
@@ -52,21 +57,21 @@ public class Aggregator {
          modelList.add(predictionPerModel.get(i));
       }
    }
-   
-   /* Majority Voting takes the predictions made by the models and
-    * counts the number of votes each class received. Outputs are
-    * in probabilities in the case that the models have casted different
+
+   /*
+    * Majority Voting takes the predictions made by the models and counts the number of votes each
+    * class received. Outputs are in probabilities in the case that the models have casted different
     * votes.
     */
    public void majorityVoting() {
       System.out.println("---------------------------------");
       System.out.println("Majority Voting");
       System.out.println("---------------------------------");
-      
+
       double likelihood = 0.0;
       int l = 1;
 
-      //Tally predictions made by the models
+      // Tally predictions made by the models
       while (l < numInstances) {
          for (int i = 0; i < modelList.size(); i++) {
             String[] classIds = modelList.get(i).getPredictions();
@@ -78,9 +83,9 @@ public class Aggregator {
             }
          }
 
-         //Display the probabilities per instance
+         // Display the probabilities per instance
          System.out.print("Instance [" + l + "]:");
-         
+
          for (int m = 0; m < numClasses; m++) {
             if (classCounters[m] != 0) {
                likelihood = ((double) classCounters[m] / (double) models.length) * 100.0;
@@ -94,9 +99,9 @@ public class Aggregator {
       }
    }
 
-   /* This method is used in order to determine the weights the models 
-    * will be assigned with during the Majority Voting phase. Weights 
-    * were determined depending on the model's produced accuracy.
+   /*
+    * This method is used in order to determine the weights the models will be assigned with during
+    * the Majority Voting phase. Weights were determined depending on the model's produced accuracy.
     */
    public void setWeights() {
       int accuracy = 0;
@@ -142,22 +147,22 @@ public class Aggregator {
       }
    }
 
-   /* Weighted Majority Voting takes the predictions made by the models 
-    * and counts the number of votes each class received. This time, weights
-    * are assigned to each vote a model casts. Outputs are in probabilities 
-    * in the case that the models have casted different votes.
+   /*
+    * Weighted Majority Voting takes the predictions made by the models and counts the number of
+    * votes each class received. This time, weights are assigned to each vote a model casts. Outputs
+    * are in probabilities in the case that the models have casted different votes.
     */
    public void weightedMajorityVoting() {
       System.out.println("---------------------------------");
       System.out.println("Weighted Majority Voting");
       System.out.println("---------------------------------");
-      
+
       setWeights();
       double likelihood = 0.0;
       int weightedTotal = 0;
       int l = 1;
 
-      //Tally the weighted votes the models casted
+      // Tally the weighted votes the models casted
       while (l < numInstances) {
          for (int i = 0; i < modelList.size(); i++) {
             String[] classIds = modelList.get(i).getPredictions();
@@ -169,8 +174,8 @@ public class Aggregator {
                }
             }
          }
-         
-         //Display the probabilities per instance
+
+         // Display the probabilities per instance
          System.out.print("Instance [" + l + "]:");
 
          for (int m = 0; m < numClasses; m++) {
@@ -188,13 +193,13 @@ public class Aggregator {
       }
    }
 
-   /* Stacking with SVM takes the predictions made by the models and
-    * uses them as a feature set. The meta-classifier used is the SVM, 
-    * trained using 10-fold cross validation. Outputs are a single 
+   /*
+    * Stacking with SVM takes the predictions made by the models and uses them as a feature set. The
+    * meta-classifier used is the SVM, trained using 10-fold cross validation. Outputs are a single
     * class prediction made by the meta-classifier.
     */
    public void stackingWithSVM(Instances trainingSet) throws Exception {
-      //Set stacking classifier to SVM
+      // Set stacking classifier to SVM
       Stacking stackSVM = new Stacking();
       LibSVM libsvm = new LibSVM();
       Model model = new Model();
@@ -202,19 +207,19 @@ public class Aggregator {
 
       stackSVM.setMetaClassifier(libsvm);
       Evaluation eval = new Evaluation(trainingSet);
-      
-      //Use 10-fold cross validation in order to train the meta-classifier
+
+      // Use 10-fold cross validation in order to train the meta-classifier
       eval.crossValidateModel(stackSVM, trainingSet, 10, new Random(1));
       System.out.println(eval.toSummaryString(
             "---------------------------------\n Stacking with SVM\n---------------------------------",
             false));
 
-      //Get predictions made by the meta-classifier
+      // Get predictions made by the meta-classifier
       FastVector predictions = eval.predictions();
       model.setPredictions(trainingSet, predictions);
       String[] predList = model.getPredictions();
 
-      //Display the prediction per instance
+      // Display the prediction per instance
       for (int i = 1; i < predList.length; i++) {
          System.out.println("Instance [" + i + "]: " + predList[i]);
       }
