@@ -41,15 +41,16 @@ public class Model {
       return predictions;
    }
 
-   // Convert the predictions (returned as double values) into a readable
-   // String value
+   /*
+    * Convert the predictions (returned as double values) into a readable String value
+    */
    public void setPredictions(Instances data, FastVector predictions) {
       NominalPrediction np;
       double predicted;
 
       predictionList = new String[data.numInstances()];
 
-      for (int i = 1; i < predictions.size(); i++) {
+      for (int i = 0; i < predictions.size(); i++) {
          np = (NominalPrediction) predictions.elementAt(i);
          predicted = np.predicted();
          predictionList[i] = data.classAttribute().value((int) predicted);
@@ -60,9 +61,11 @@ public class Model {
       return this.predictionList;
    }
 
-   // Get the accuracy of each model by comparing the prediction against
-   // the actual classification of the instance and computing how many times
-   // it makes the correct classification over the number of predictions made.
+   /*
+    * Get the accuracy of each model by comparing the prediction against the actual classification
+    * of the instance and computing how many times it makes the correct classification over the
+    * number of predictions made.
+    */
    public void calculateAccuracy(FastVector predictions) {
       double correct = 0;
 

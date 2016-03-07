@@ -2,15 +2,13 @@
  * The Aggregator class takes the input of other models in order to produce classifications with
  * varying probabilities and a single classification made by a meta-classifier.
  * 
- * Parameters are: 
- * model: the models to be aggregated. 
+ * Parameters are: model: the models to be aggregated.
  * 
- * predictionPerModel: predictions produced by
- * each model. 
+ * predictionPerModel: predictions produced by each model.
  * 
- * dataClasses: classes (in String) of the arff file. 
+ * dataClasses: classes (in String) of the arff file.
  * 
- * numInstances: the number of instances the arff file has. 
+ * numInstances: the number of instances the arff file has.
  * 
  * numClasses: number of classes the arff file has.
  */
@@ -21,6 +19,7 @@ import java.util.Random;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+import weka.classifiers.evaluation.NominalPrediction;
 import weka.classifiers.meta.Stacking;
 import weka.core.FastVector;
 import weka.core.Instances;
@@ -30,10 +29,16 @@ public class Aggregator {
    private Classifier[] models;
    private int[] classCounters;
    private String[] dataClasses;
+   private double[] predictions;
    private HashMap<Integer, Model> predictionPerModel;
    private ArrayList<Model> modelList;
    private int numInstances;
    private int numClasses;
+   private double likelihood;
+   private double temp;
+   private double aggrPred;
+   private int weightedTotal;
+   private int instance;
 
    public Aggregator(Classifier[] model, HashMap<Integer, Model> predictionPerModel,
          String[] dataClasses, int numInstances, int numClasses) {
@@ -44,6 +49,12 @@ public class Aggregator {
       this.numClasses = numClasses;
       this.classCounters = new int[numClasses];
       this.dataClasses = dataClasses;
+      this.predictions = new double[numInstances];
+      this.likelihood = 0.0;
+      this.temp = 0.0;
+      this.aggrPred = 0.0;
+      this.weightedTotal = 0;
+      this.instance = 0;
    }
 
    public void initClassCounters() {
@@ -59,32 +70,47 @@ public class Aggregator {
    }
 
    /*
+    * Get the accuracy of the aggregator by comparing the prediction it made against the actual
+    * classification of the instance and computing how many times it makes the correct
+    * classification over the number of predictions made.
+    */
+   public double calculateAggrAccuracy(FastVector predictions, double[] aggrPredictions) {
+      double correct = 0;
+
+      for (int i = 0; i < predictions.size(); i++) {
+         NominalPrediction np = (NominalPrediction) predictions.elementAt(i);
+         if (aggrPredictions[i] == np.actual()) {
+            correct++;
+         }
+      }
+
+      return 100 * correct / predictions.size();
+   }
+
+   /*
     * Majority Voting takes the predictions made by the models and counts the number of votes each
     * class received. Outputs are in probabilities in the case that the models have casted different
     * votes.
     */
-   public void majorityVoting() {
+   public double[] majorityVoting() {
       System.out.println("---------------------------------");
       System.out.println("Majority Voting");
       System.out.println("---------------------------------");
 
-      double likelihood = 0.0;
-      int l = 1;
-
       // Tally predictions made by the models
-      while (l < numInstances) {
+      while (instance < numInstances) {
          for (int i = 0; i < modelList.size(); i++) {
             String[] classIds = modelList.get(i).getPredictions();
 
             for (int k = 0; k < numClasses; k++) {
-               if (classIds[l] == dataClasses[k]) {
+               if (classIds[instance] == dataClasses[k]) {
                   classCounters[k]++;
                }
             }
          }
 
          // Display the probabilities per instance
-         System.out.print("Instance [" + l + "]:");
+         System.out.print("Instance [" + (instance + 1) + "]:");
 
          for (int m = 0; m < numClasses; m++) {
             if (classCounters[m] != 0) {
@@ -92,11 +118,30 @@ public class Aggregator {
                System.out.print(
                      " " + dataClasses[m] + ": " + String.format("%.4f%%", likelihood) + " ");
                classCounters[m] = 0;
+
+               // Get the aggregated prediction by taking the predicted
+               // class with the highest likelihood value
+               if (temp < likelihood) {
+                  temp = likelihood;
+                  aggrPred = (double) m;
+               }
+
+               classCounters[m] = 0;
             }
          }
          System.out.println(" ");
-         l++;
+
+         // Add aggregated prediction to list
+         predictions[instance] = aggrPred;
+         System.out.println("Final Prediction: " + dataClasses[(int) predictions[instance]]);
+         System.out.println(" ");
+
+         // Initialize values
+         temp = 0.0;
+
+         instance++;
       }
+      return predictions;
    }
 
    /*
@@ -152,45 +197,61 @@ public class Aggregator {
     * votes each class received. This time, weights are assigned to each vote a model casts. Outputs
     * are in probabilities in the case that the models have casted different votes.
     */
-   public void weightedMajorityVoting() {
+   public double[] weightedMajorityVoting() {
       System.out.println("---------------------------------");
       System.out.println("Weighted Majority Voting");
       System.out.println("---------------------------------");
 
       setWeights();
-      double likelihood = 0.0;
-      int weightedTotal = 0;
-      int l = 1;
+
+      instance = 0;
 
       // Tally the weighted votes the models casted
-      while (l < numInstances) {
+      while (instance < numInstances) {
          for (int i = 0; i < modelList.size(); i++) {
             String[] classIds = modelList.get(i).getPredictions();
             weightedTotal = weightedTotal + modelList.get(i).getWeight();
 
             for (int k = 0; k < numClasses; k++) {
-               if (classIds[l] == dataClasses[k]) {
+               if (classIds[instance] == dataClasses[k]) {
                   classCounters[k] = classCounters[k] + modelList.get(i).getWeight();
                }
             }
          }
 
          // Display the probabilities per instance
-         System.out.print("Instance [" + l + "]:");
+         System.out.print("Instance [" + (instance + 1) + "]:");
 
          for (int m = 0; m < numClasses; m++) {
             if (classCounters[m] != 0) {
                likelihood = ((double) classCounters[m] / (double) weightedTotal) * 100.0;
                System.out.print(
                      " " + dataClasses[m] + ": " + String.format("%.4f%%", likelihood) + " ");
+
+               // Get the aggregated prediction by taking the predicted
+               // class with the highest likelihood value
+               if (temp < likelihood) {
+                  temp = likelihood;
+                  aggrPred = (double) m;
+               }
+
                classCounters[m] = 0;
             }
          }
          System.out.println(" ");
 
+         // Add aggregated prediction to list
+         predictions[instance] = aggrPred;
+         System.out.println("Final Prediction: " + dataClasses[(int) predictions[instance]]);
+         System.out.println(" ");
+
+         // Initialize values
+         temp = 0.0;
          weightedTotal = 0;
-         l++;
+
+         instance++;
       }
+      return predictions;
    }
 
    /*
@@ -220,8 +281,9 @@ public class Aggregator {
       String[] predList = model.getPredictions();
 
       // Display the prediction per instance
-      for (int i = 1; i < predList.length; i++) {
-         System.out.println("Instance [" + i + "]: " + predList[i]);
+      for (int i = 0; i < predList.length; i++) {
+         System.out.println("Instance [" + (i + 1) + "]: " + predList[i]);
+         System.out.println(" ");
       }
    }
 }

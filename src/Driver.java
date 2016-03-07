@@ -54,13 +54,13 @@ public class Driver {
       HashMap<Integer, Model> predictionPerModel = new HashMap<Integer, Model>();
       Instances data = dataHandler.getData();
 
+      // Store every group of predictions for current model in a FastVector
+      FastVector predictions = new FastVector();
+
       // Run for each model
       for (int j = 0; j < models.length; j++) {
          System.out.println("*********************************");
          Model model = new Model();
-
-         // Store every group of predictions for current model in a FastVector
-         FastVector predictions = new FastVector();
 
          // For each training-testing split pair, train and test the classifier
          predictions = model.classify(models[j], data);
@@ -78,14 +78,26 @@ public class Driver {
             new Aggregator(models, predictionPerModel, dataClasses, numInstances, numClasses);
       aggr.initModelList();
 
+      // Stores the list of aggregated predictions
+      double[] aggrPredictions;
+      double aggrAccuracy = 0.0;
+
       System.out.println("*********************************");
       // Majority Voting
-      aggr.majorityVoting();
+      aggrPredictions = aggr.majorityVoting();
+      // Get accuracy
+      aggrAccuracy = aggr.calculateAggrAccuracy(predictions, aggrPredictions);
+      System.out.println("---------------------------------");
+      System.out.println("Accuracy: " + String.format("%.4f%%", aggrAccuracy));
       System.out.println("*********************************");
 
       System.out.println("*********************************");
       // Weighted Majority Voting
-      aggr.weightedMajorityVoting();
+      aggrPredictions = aggr.weightedMajorityVoting();
+      // Get accuracy
+      aggrAccuracy = aggr.calculateAggrAccuracy(predictions, aggrPredictions);
+      System.out.println("---------------------------------");
+      System.out.println("Accuracy: " + String.format("%.4f%%", aggrAccuracy));
       System.out.println("*********************************");
 
       System.out.println("*********************************");
