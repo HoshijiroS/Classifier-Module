@@ -29,32 +29,40 @@ public class Aggregator {
    private Classifier[] models;
    private int[] classCounters;
    private String[] dataClasses;
-   private double[] predictions;
+   private String[] modDataClasses;
+   private double[] modPredictions;
+   private double[] aggrPredictions;
    private HashMap<Integer, Model> predictionPerModel;
    private ArrayList<Model> modelList;
+   private double[][] likelihoodPerInstance;
+   private double[] likelihoodList;
+   private FastVector predictions;
    private int numInstances;
    private int numClasses;
    private double likelihood;
    private double temp;
    private double aggrPred;
-   private int weightedTotal;
-   private int instance;
+   private int tieCount;
 
    public Aggregator(Classifier[] model, HashMap<Integer, Model> predictionPerModel,
-         String[] dataClasses, int numInstances, int numClasses) {
+         String[] dataClasses, int numInstances, int numClasses, FastVector predictions) {
       this.models = model;
       this.predictionPerModel = predictionPerModel;
       this.numInstances = numInstances;
+      this.predictions = predictions;
       this.modelList = new ArrayList<Model>();
+      this.likelihoodPerInstance = new double[numInstances][numClasses];
+      this.likelihoodList = new double[numInstances];
       this.numClasses = numClasses;
       this.classCounters = new int[numClasses];
       this.dataClasses = dataClasses;
-      this.predictions = new double[numInstances];
+      this.modDataClasses = new String[dataClasses.length + 1];
+      this.modPredictions = new double[numInstances];
+      this.aggrPredictions = new double[numInstances];
       this.likelihood = 0.0;
       this.temp = 0.0;
       this.aggrPred = 0.0;
-      this.weightedTotal = 0;
-      this.instance = 0;
+      this.tieCount = 0;
    }
 
    public void initClassCounters() {
@@ -63,10 +71,18 @@ public class Aggregator {
       }
    }
 
-   public void initModelList() {
+   public void populateModelList() {
       for (int i = 0; i < this.models.length; i++) {
          modelList.add(predictionPerModel.get(i));
       }
+   }
+
+   public void populateModifiedPredList() {
+      for (int i = 0; i < dataClasses.length; i++) {
+         modDataClasses[i] = dataClasses[i];
+      }
+
+      modDataClasses[dataClasses.length] = "NONE";
    }
 
    /*
@@ -74,17 +90,96 @@ public class Aggregator {
     * classification of the instance and computing how many times it makes the correct
     * classification over the number of predictions made.
     */
-   public double calculateAggrAccuracy(FastVector predictions, double[] aggrPredictions) {
+   public double calculateAggrAccuracy(double[] aggrPredictions) {
       double correct = 0;
-
-      for (int i = 0; i < predictions.size(); i++) {
-         NominalPrediction np = (NominalPrediction) predictions.elementAt(i);
-         if (aggrPredictions[i] == np.actual()) {
-            correct++;
+      int ties = 0;
+      
+      for (int i = 0; i < this.predictions.size(); i++) {
+         NominalPrediction np = (NominalPrediction) this.predictions.elementAt(i);
+         if(!(aggrPredictions[i] == dataClasses.length)){
+            if (aggrPredictions[i] == np.actual()) {
+               correct++;
+            }
+         }
+         else {
+            ties++;
          }
       }
 
-      return 100 * correct / predictions.size();
+      System.out.println("Ties found: " + ties);
+      return 100 * correct / this.predictions.size();
+   }
+
+   public double[] classify(int config) {
+      int weightTotal = 0;
+      
+      setWeights(config);
+      // Tally predictions made by the models
+      for (int instance = 0; instance < numInstances; instance++) {
+         for (int i = 0; i < modelList.size(); i++) {
+            String[] classIds = modelList.get(i).getPredictions();
+            weightTotal = weightTotal + modelList.get(i).getWeight();
+
+            for (int k = 0; k < numClasses; k++) {
+               if (classIds[instance] == dataClasses[k]) {
+                  classCounters[k] = classCounters[k] + modelList.get(i).getWeight();
+               }
+            }
+         }
+
+         // Display the probabilities per instance
+         System.out.print("Instance [" + (instance + 1) + "]:");
+
+         for (int i = 0; i < numClasses; i++) {
+            likelihoodPerInstance[instance][i] = -1;
+            if (classCounters[i] != 0) {
+               likelihood = ((double) classCounters[i] / (double) weightTotal) * 100.0;
+               likelihoodPerInstance[instance][i] = likelihood;
+               System.out.print(
+                     " " + dataClasses[i] + ": " + String.format("%.4f%%", likelihood) + " ");
+
+               // Get the aggregated prediction by taking the predicted
+               // class with the highest likelihood value
+               if (temp < likelihood) {
+                  temp = likelihood;
+                  aggrPred = (double) i;
+                  likelihoodList[instance] = temp;
+               }
+
+               classCounters[i] = 0;
+            }
+         }
+         System.out.println(" ");
+
+         // Add aggregated prediction to list
+         modPredictions[instance] = aggrPred;
+         aggrPredictions[instance] = aggrPred;
+         
+         // Check for ties
+         populateModifiedPredList();
+         for (int i = 0; i < dataClasses.length; i++) {
+            if (likelihoodList[instance] == likelihoodPerInstance[instance][i]) {
+               tieCount++;
+               if (tieCount > 1) {
+                  modPredictions[instance] = dataClasses.length;
+               }
+            }
+         }
+
+         System.out.println("Final Prediction: " + modDataClasses[(int) modPredictions[instance]]);
+         System.out.println(" ");
+
+         // Initialize values
+         temp = 0.0;
+         weightTotal = 0;
+         tieCount = 0;
+      }
+      
+      double aggrAccuracy = calculateAggrAccuracy(modPredictions);
+      System.out.println("---------------------------------");
+      System.out.println("Modified Accuracy: " + String.format("%.4f%%", aggrAccuracy));
+      
+      return aggrPredictions;
    }
 
    /*
@@ -97,96 +192,56 @@ public class Aggregator {
       System.out.println("Majority Voting");
       System.out.println("---------------------------------");
 
-      // Tally predictions made by the models
-      while (instance < numInstances) {
-         for (int i = 0; i < modelList.size(); i++) {
-            String[] classIds = modelList.get(i).getPredictions();
-
-            for (int k = 0; k < numClasses; k++) {
-               if (classIds[instance] == dataClasses[k]) {
-                  classCounters[k]++;
-               }
-            }
-         }
-
-         // Display the probabilities per instance
-         System.out.print("Instance [" + (instance + 1) + "]:");
-
-         for (int m = 0; m < numClasses; m++) {
-            if (classCounters[m] != 0) {
-               likelihood = ((double) classCounters[m] / (double) models.length) * 100.0;
-               System.out.print(
-                     " " + dataClasses[m] + ": " + String.format("%.4f%%", likelihood) + " ");
-               classCounters[m] = 0;
-
-               // Get the aggregated prediction by taking the predicted
-               // class with the highest likelihood value
-               if (temp < likelihood) {
-                  temp = likelihood;
-                  aggrPred = (double) m;
-               }
-
-               classCounters[m] = 0;
-            }
-         }
-         System.out.println(" ");
-
-         // Add aggregated prediction to list
-         predictions[instance] = aggrPred;
-         System.out.println("Final Prediction: " + dataClasses[(int) predictions[instance]]);
-         System.out.println(" ");
-
-         // Initialize values
-         temp = 0.0;
-
-         instance++;
-      }
-      return predictions;
+      return classify(0);
    }
 
    /*
     * This method is used in order to determine the weights the models will be assigned with during
     * the Majority Voting phase. Weights were determined depending on the model's produced accuracy.
     */
-   public void setWeights() {
+   public void setWeights(int config) {
       int accuracy = 0;
 
       for (int i = 0; i < models.length; i++) {
-         accuracy = (int) modelList.get(i).getAccuracy();
+         if (config == 1) {
+            accuracy = (int) modelList.get(i).getAccuracy();
 
-         if (accuracy > 90) {
-            modelList.get(i).setWeight(9);
-         }
+            if (accuracy > 90) {
+               modelList.get(i).setWeight(9);
+            }
 
-         else if (accuracy > 80) {
-            modelList.get(i).setWeight(8);
-         }
+            else if (accuracy > 80) {
+               modelList.get(i).setWeight(8);
+            }
 
-         else if (accuracy > 70) {
-            modelList.get(i).setWeight(7);
-         }
+            else if (accuracy > 70) {
+               modelList.get(i).setWeight(7);
+            }
 
-         else if (accuracy > 60) {
-            modelList.get(i).setWeight(6);
-         }
+            else if (accuracy > 60) {
+               modelList.get(i).setWeight(6);
+            }
 
-         else if (accuracy > 50) {
-            modelList.get(i).setWeight(5);
-         }
+            else if (accuracy > 50) {
+               modelList.get(i).setWeight(5);
+            }
 
-         else if (accuracy > 40) {
-            modelList.get(i).setWeight(4);
-         }
+            else if (accuracy > 40) {
+               modelList.get(i).setWeight(4);
+            }
 
-         else if (accuracy > 30) {
-            modelList.get(i).setWeight(3);
-         }
+            else if (accuracy > 30) {
+               modelList.get(i).setWeight(3);
+            }
 
-         else if (accuracy > 20) {
-            modelList.get(i).setWeight(2);
-         }
+            else if (accuracy > 20) {
+               modelList.get(i).setWeight(2);
+            }
 
-         else if (accuracy > 10) {
+            else if (accuracy > 10) {
+               modelList.get(i).setWeight(1);
+            }
+         } else if (config == 0) {
             modelList.get(i).setWeight(1);
          }
       }
@@ -202,56 +257,7 @@ public class Aggregator {
       System.out.println("Weighted Majority Voting");
       System.out.println("---------------------------------");
 
-      setWeights();
-
-      instance = 0;
-
-      // Tally the weighted votes the models casted
-      while (instance < numInstances) {
-         for (int i = 0; i < modelList.size(); i++) {
-            String[] classIds = modelList.get(i).getPredictions();
-            weightedTotal = weightedTotal + modelList.get(i).getWeight();
-
-            for (int k = 0; k < numClasses; k++) {
-               if (classIds[instance] == dataClasses[k]) {
-                  classCounters[k] = classCounters[k] + modelList.get(i).getWeight();
-               }
-            }
-         }
-
-         // Display the probabilities per instance
-         System.out.print("Instance [" + (instance + 1) + "]:");
-
-         for (int m = 0; m < numClasses; m++) {
-            if (classCounters[m] != 0) {
-               likelihood = ((double) classCounters[m] / (double) weightedTotal) * 100.0;
-               System.out.print(
-                     " " + dataClasses[m] + ": " + String.format("%.4f%%", likelihood) + " ");
-
-               // Get the aggregated prediction by taking the predicted
-               // class with the highest likelihood value
-               if (temp < likelihood) {
-                  temp = likelihood;
-                  aggrPred = (double) m;
-               }
-
-               classCounters[m] = 0;
-            }
-         }
-         System.out.println(" ");
-
-         // Add aggregated prediction to list
-         predictions[instance] = aggrPred;
-         System.out.println("Final Prediction: " + dataClasses[(int) predictions[instance]]);
-         System.out.println(" ");
-
-         // Initialize values
-         temp = 0.0;
-         weightedTotal = 0;
-
-         instance++;
-      }
-      return predictions;
+      return classify(1);
    }
 
    /*

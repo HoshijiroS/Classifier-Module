@@ -28,6 +28,7 @@ public class Driver {
 
       // Get data classes
       String[] dataClasses = dataHandler.getDataClasses();
+      
       int numClasses = dataHandler.getSize();
       int numInstances = dataHandler.getClassInstances();
 
@@ -75,31 +76,35 @@ public class Driver {
 
       // Aggregate the predictions made by the set of classifiers
       Aggregator aggr =
-            new Aggregator(models, predictionPerModel, dataClasses, numInstances, numClasses);
-      aggr.initModelList();
+            new Aggregator(models, predictionPerModel, dataClasses, numInstances, numClasses, predictions);
+      aggr.populateModelList();
 
       // Stores the list of aggregated predictions
       double[] aggrPredictions;
       double aggrAccuracy = 0.0;
-
+      
       System.out.println("*********************************");
       // Majority Voting
       aggrPredictions = aggr.majorityVoting();
+      
       // Get accuracy
-      aggrAccuracy = aggr.calculateAggrAccuracy(predictions, aggrPredictions);
+      aggrAccuracy = aggr.calculateAggrAccuracy(aggrPredictions);
+      
       System.out.println("---------------------------------");
       System.out.println("Accuracy: " + String.format("%.4f%%", aggrAccuracy));
       System.out.println("*********************************");
-
+       
       System.out.println("*********************************");
       // Weighted Majority Voting
       aggrPredictions = aggr.weightedMajorityVoting();
+      
       // Get accuracy
-      aggrAccuracy = aggr.calculateAggrAccuracy(predictions, aggrPredictions);
+      aggrAccuracy = aggr.calculateAggrAccuracy(aggrPredictions);
+      
       System.out.println("---------------------------------");
       System.out.println("Accuracy: " + String.format("%.4f%%", aggrAccuracy));
       System.out.println("*********************************");
-
+      
       System.out.println("*********************************");
       // Stacking with SVM
       aggr.stackingWithSVM(data);
