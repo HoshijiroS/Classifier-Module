@@ -37,13 +37,14 @@ public class Driver {
       DataHandler dataHandler = new DataHandler(datafile);
       
       // Train data classes using 10-fold cross validation
-      Instances data = dataHandler.crossValidationSplit(10);
+      //Instances data = dataHandler.crossValidationSplit(10);
+      Instances data = dataHandler.getData();
       
       // Get data classes
       String[] dataClasses = dataHandler.getDataClasses();
       
-      PrintStream out = new PrintStream(new FileOutputStream("output.txt"));
-      System.setOut(out);
+//      PrintStream out = new PrintStream(new FileOutputStream("output.txt"));
+//      System.setOut(out);
       
       
       int numClasses = dataHandler.getSize();
@@ -52,8 +53,8 @@ public class Driver {
       // Load models here
       
       // Use a set of 5 classifiers
-      Classifier[] models = {new NaiveBayes(), // Naive Bayes
-//            new LibSVM(), // SVM
+      Classifier[] models = new Classifier[4];{new NaiveBayes(), // Naive Bayes
+            new LibSVM(), // SVM
 //            new MultilayerPerceptron(), // Neural Network
             new IBk(), // K-Nearest Neighbor
             new BayesNet() // Maximum Entropy
@@ -66,10 +67,10 @@ public class Driver {
          public void print(String s) {}
       });
 
-      System.setErr(new PrintStream(new OutputStream() {
+      /*System.setErr(new PrintStream(new OutputStream() {
          // Disables the warnings returned by the classifiers
          public void write(int b) {}
-      }));
+      }));*/
 
       HashMap<Integer, Model> predictionPerModel = new HashMap<Integer, Model>();
 
@@ -82,10 +83,11 @@ public class Driver {
          Model model = new Model(models[j].getClass().getSimpleName());
 
          // For each training-testing split pair, train and test the classifier
-         predictions = model.classify(models[j], data);
+         predictions = model.classify(data);
+         models[j] = model.getModel();
 
          // Get and set the accuracy of the models given their predictions
-         model.calculateAccuracy(predictions);
+         //model.calculateAccuracy(predictions);
          model.setPredictions(data, predictions);
          
          predictionPerModel.put(j, model);
@@ -124,21 +126,21 @@ public class Driver {
          TermFrequency tf = new TermFrequency(articles, sentiments);
          
          //Set values for TermFrequency's Model
-         termFrequencyModel.setAccuracy(tf.getAccuracy());
-         termFrequencyModel.setPredictionList(tf.getClassifierPredictions());
+//         termFrequencyModel.setAccuracy(tf.getAccuracy());
+//         termFrequencyModel.setPredictionList(tf.getClassifierPredictions());
          
          //Create new SOCAL
-         SOCAL sc = new SOCAL(articles, sentiments);
-         socalModel.setAccuracy(sc.getAccuracy());
-         socalModel.setPredictionList(sc.getClassifierPredictions());
+//         SOCAL sc = new SOCAL(articles, sentiments);
+//         socalModel.setAccuracy(sc.getAccuracy());
+//         socalModel.setPredictionList(sc.getClassifierPredictions());
          
       }catch(Exception e){
         e.printStackTrace();
       }
       
       int lastModel = models.length-1;
-      predictionPerModel.put(++lastModel, termFrequencyModel);
-      predictionPerModel.put(++lastModel, socalModel);     
+//      predictionPerModel.put(++lastModel, termFrequencyModel);
+//      predictionPerModel.put(++lastModel, socalModel);     
       
       
 

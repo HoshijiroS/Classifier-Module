@@ -1,52 +1,102 @@
 *********************************
+LOAD MODEL.
 ---------------------------------
  NaiveBayes
 ---------------------------------
-Correctly Classified Instances         246               74.5455 %
-Incorrectly Classified Instances        84               25.4545 %
-Kappa statistic                          0.5576
-Mean absolute error                      0.1683
-Root mean squared error                  0.3865
-Relative absolute error                 44.1139 %
-Root relative squared error             88.5522 %
-Total Number of Instances              330     
+Correctly Classified Instances           1              100      %
+Incorrectly Classified Instances         0                0      %
+Kappa statistic                          1     
+Mean absolute error                      0     
+Root mean squared error                  0     
+Relative absolute error                  0      %
+Root relative squared error              0      %
+Total Number of Instances                1     
 
 *********************************
 *********************************
+LOAD MODEL.
+---------------------------------
+ LibSVM
+---------------------------------
+Correctly Classified Instances           1              100      %
+Incorrectly Classified Instances         0                0      %
+Kappa statistic                          1     
+Mean absolute error                      0     
+Root mean squared error                  0     
+Relative absolute error                  0      %
+Root relative squared error              0      %
+Total Number of Instances                1     
+
+*********************************
+*********************************
+LOAD MODEL.
 ---------------------------------
  IBk
 ---------------------------------
-Correctly Classified Instances         236               71.5152 %
-Incorrectly Classified Instances        94               28.4848 %
-Kappa statistic                          0.508 
-Mean absolute error                      0.2035
-Root mean squared error                  0.4279
-Relative absolute error                 53.3396 %
-Root relative squared error             98.0515 %
-Total Number of Instances              330     
+Correctly Classified Instances           1              100      %
+Incorrectly Classified Instances         0                0      %
+Kappa statistic                          1     
+Mean absolute error                      0.004 
+Root mean squared error                  0.0042
+Relative absolute error                  1.2012 %
+Root relative squared error              1.2012 %
+Total Number of Instances                1     
 
 *********************************
 *********************************
+LOAD MODEL.
 ---------------------------------
  BayesNet
 ---------------------------------
-Correctly Classified Instances         247               74.8485 %
-Incorrectly Classified Instances        83               25.1515 %
-Kappa statistic                          0.5689
-Mean absolute error                      0.1649
-Root mean squared error                  0.3872
-Relative absolute error                 43.2191 %
-Root relative squared error             88.7122 %
-Total Number of Instances              330     
+Correctly Classified Instances           1              100      %
+Incorrectly Classified Instances         0                0      %
+Kappa statistic                          1     
+Mean absolute error                      0     
+Root mean squared error                  0     
+Relative absolute error                  0      %
+Root relative squared error              0      %
+Total Number of Instances                1     
 
 *********************************
 73.63636363636363
+*********************************
+---------------------------------
+Majority Voting
+---------------------------------
+Instance [1]:
+Classifier NaiveBayes has voted Neutral.
+Classifier LibSVM has voted Neutral.
+Classifier IBk has voted Neutral.
+Classifier BayesNet has voted Neutral.
 
+Tallied results are Neutral: 100.0000%  
 
+Final Prediction: Neutral
+***
 
+---------------------------------
+Modified Accuracy: 100.0000%
+---------------------------------
+Accuracy: 100.0000%
+*********************************
+*********************************
+---------------------------------
+Weighted Majority Voting
+---------------------------------
+Instance [1]:
+Classifier NaiveBayes has voted Neutral.
+Classifier LibSVM has voted Neutral.
+Classifier IBk has voted Neutral.
+Classifier BayesNet has voted Neutral.
 
+Tallied results are Neutral: 100.0000%  
 
+Final Prediction: Neutral
+***
 
-
-
-
+---------------------------------
+Modified Accuracy: 100.0000%
+---------------------------------
+Accuracy: 100.0000%
+*********************************
+*********************************

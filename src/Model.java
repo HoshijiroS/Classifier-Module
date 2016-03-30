@@ -24,27 +24,34 @@ public class Model {
    private double accuracy;
    private int weight;
    private String name;
+   Classifier model;
    
    public Model(String name) {
 	   this.name = name;
+	   Classifier model = null;
    }   
    
    // Classify instances
-   public FastVector classify(Classifier model, Instances data) throws Exception {
+   public FastVector classify(Instances data) throws Exception {
       FastVector predictions = new FastVector();
       Evaluation evaluation = new Evaluation(data);
       
-      if(new File(Paths.MODELS_DIR + this.name +".model").exists())
+      if(new File(Paths.MODELS_DIR + this.name +".model").exists()){
+    	  System.out.println("LOAD MODEL.");
     	  model = (Classifier) weka.core.SerializationHelper.read(Paths.MODELS_DIR + this.name + ".model");
+      }
+    	/* 
       else{
     	  new File(Paths.MODELS_DIR + this.name +".model").createNewFile();
     	  model.buildClassifier(data);
     	  weka.core.SerializationHelper.write(Paths.MODELS_DIR + this.name +".model", model);    	  
-      }
+      }*/
       
       // Use 10-fold cross validation to train the model
-      evaluation.crossValidateModel(model, data, 10, new Random(1));
-
+      //evaluation.crossValidateModel(model, data, 10, new Random(1));
+      
+      evaluation.evaluateModel(model, data);
+      
       // Output data regarding the model such as: kappa statistic,
       // mean absolute error, etc
       predictions = evaluation.predictions();
@@ -52,6 +59,10 @@ public class Model {
             + model.getClass().getSimpleName() + "\n---------------------------------", false));
 
       return predictions;
+   }
+   
+   public Classifier getModel(){
+	   return model;
    }
 
    /*

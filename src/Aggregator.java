@@ -73,7 +73,7 @@ public class Aggregator {
    
    public void populateModelList() {
      //+2 for 2 Rule-based classifiers
-      for (int i = 0; i < this.models.length + 2; i++) {
+      for (int i = 0; i < this.models.length; i++) {
          modelList.add(predictionPerModel.get(i));
       }
    }
@@ -217,7 +217,7 @@ public class Aggregator {
    public void setWeights(int config) {
       int accuracy = 0;
 
-      for (int i = 0; i < models.length + 2; i++) {
+      for (int i = 0; i < models.length; i++) {
          if (config == 1) {
             accuracy = (int) modelList.get(i).getAccuracy();
 
@@ -285,13 +285,17 @@ public class Aggregator {
       Stacking stackSVM = new Stacking();
       LibSVM libsvm = new LibSVM();
       Model model = new Model("LibSVM");
+
       stackSVM.setClassifiers(models);
 
       stackSVM.setMetaClassifier(libsvm);
       Evaluation eval = new Evaluation(trainingSet);
 
       // Use 10-fold cross validation in order to train the meta-classifier
-      eval.crossValidateModel(stackSVM, trainingSet, 10, new Random(1));
+      //eval.crossValidateModel(stackSVM, trainingSet, 10, new Random(1));;
+      //eval.evaluateModel(stackSVM, trainingSet);
+      eval.evaluateModelOnce(0.0, trainingSet.firstInstance());
+      //(stackSVM, trainingSet);
       
       System.out.println(eval.toSummaryString(
             "---------------------------------\n Stacking with SVM\n---------------------------------",

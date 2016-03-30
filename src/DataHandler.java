@@ -90,4 +90,8 @@ public class DataHandler {
    public int getClassInstances() {
       return this.classInstanceCount;
    }
+   
+   public Instances getData() {
+	   return data;
+   }
 }
