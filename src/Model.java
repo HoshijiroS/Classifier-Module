@@ -10,6 +10,7 @@
  * weight: a weight assigned to the model based on its accuracy.
  */
 
+import java.io.File;
 import java.util.Random;
 
 import weka.classifiers.Classifier;
@@ -22,13 +23,25 @@ public class Model {
    private String[] predictionList;
    private double accuracy;
    private int weight;
-
+   private String name;
+   
+   public Model(String name) {
+	   this.name = name;
+   }   
+   
    // Classify instances
    public FastVector classify(Classifier model, Instances data) throws Exception {
       FastVector predictions = new FastVector();
       Evaluation evaluation = new Evaluation(data);
-
-      model.buildClassifier(data);
+      
+      if(new File(Paths.MODELS_DIR + this.name +".model").exists())
+    	  model = (Classifier) weka.core.SerializationHelper.read(Paths.MODELS_DIR + this.name + ".model");
+      else{
+    	  new File(Paths.MODELS_DIR + this.name +".model").createNewFile();
+    	  model.buildClassifier(data);
+    	  weka.core.SerializationHelper.write(Paths.MODELS_DIR + this.name +".model", model);    	  
+      }
+      
       // Use 10-fold cross validation to train the model
       evaluation.crossValidateModel(model, data, 10, new Random(1));
 
@@ -89,5 +102,18 @@ public class Model {
 
    public int getWeight() {
       return this.weight;
+   }
+   
+   public String getName(){
+	   return this.name;
+   }
+   
+   //For Rule Based
+   public void setAccuracy(double accuracy){
+     this.accuracy = accuracy;
+   }
+   
+   public void setPredictionList(String[] predictionList){
+     this.predictionList = predictionList;
    }
 }

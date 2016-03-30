@@ -70,11 +70,17 @@ public class Aggregator {
          classCounters[i] = 0;
       }
    }
-
+   
+   /*
+    * + 1 for the rule based classifiers, wala pang code ni socal
+    */
    public void populateModelList() {
-      for (int i = 0; i < this.models.length; i++) {
+     //+2 for 2 Rule-based classifiers
+      for (int i = 0; i < this.models.length + 2; i++) {
          modelList.add(predictionPerModel.get(i));
       }
+      System.out.println("MODEL SIZE1: " + predictionPerModel.size());
+      System.out.println("");
    }
 
    public void populateModifiedPredList() {
@@ -106,7 +112,10 @@ public class Aggregator {
          }
       }
 
-      System.out.println("Ties found: " + ties);
+      if(ties > 0) {
+    	  System.out.println("Ties found: " + ties);
+      }
+      
       return 100 * correct / this.predictions.size();
    }
 
@@ -116,20 +125,28 @@ public class Aggregator {
       setWeights(config);
       // Tally predictions made by the models
       for (int instance = 0; instance < numInstances; instance++) {
-         for (int i = 0; i < modelList.size(); i++) {
+    	  
+    	  // Display the probabilities per instance
+          System.out.println("Instance [" + (instance + 1) + "]:");
+          
+    	  for (int i = 0; i < modelList.size(); i++) {
             String[] classIds = modelList.get(i).getPredictions();
             weightTotal = weightTotal + modelList.get(i).getWeight();
 
+            System.out.println("Classifier " + modelList.get(i).getName() + " has voted " + modelList.get(i).getPredictions()[instance] + ".");
+            
+            
             for (int k = 0; k < numClasses; k++) {
                if (classIds[instance] == dataClasses[k]) {
                   classCounters[k] = classCounters[k] + modelList.get(i).getWeight();
                }
             }
          }
-
-         // Display the probabilities per instance
-         System.out.print("Instance [" + (instance + 1) + "]:");
-
+    	 System.out.println("MODEL SIZE2: " + modelList.size());
+    	 
+    	 System.out.println("");
+    	 System.out.print("Tallied results are");
+    	 
          for (int i = 0; i < numClasses; i++) {
             likelihoodPerInstance[instance][i] = -1;
             if (classCounters[i] != 0) {
@@ -165,9 +182,11 @@ public class Aggregator {
                }
             }
          }
-
+         
+         System.out.println("");
          System.out.println("Final Prediction: " + modDataClasses[(int) modPredictions[instance]]);
-         System.out.println(" ");
+         System.out.println("***");
+         System.out.println("");
 
          // Initialize values
          temp = 0.0;
@@ -269,7 +288,7 @@ public class Aggregator {
       // Set stacking classifier to SVM
       Stacking stackSVM = new Stacking();
       LibSVM libsvm = new LibSVM();
-      Model model = new Model();
+      Model model = new Model("LibSVM");
       stackSVM.setClassifiers(models);
 
       stackSVM.setMetaClassifier(libsvm);
@@ -277,6 +296,7 @@ public class Aggregator {
 
       // Use 10-fold cross validation in order to train the meta-classifier
       eval.crossValidateModel(stackSVM, trainingSet, 10, new Random(1));
+      
       System.out.println(eval.toSummaryString(
             "---------------------------------\n Stacking with SVM\n---------------------------------",
             false));

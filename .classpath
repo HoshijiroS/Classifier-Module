@@ -2,7 +2,17 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="lib" path="C:/Program Files (x86)/Weka-3-6/libsvm.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files (x86)/Weka-3-6/weka.jar"/>
+	<classpathentry kind="lib" path="slf4j-api.jar"/>
+	<classpathentry kind="lib" path="slf4j-simple.jar"/>
+	<classpathentry kind="lib" path="stanford-postagger.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Sammy Caychingco/Documents/NetBeansProjects/Libraries/Apache Commons/commons-poi-3.13-20150929.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Sammy Caychingco/Documents/NetBeansProjects/Libraries/Apache Commons/commons-poi-examples-3.13-20150929.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Sammy Caychingco/Documents/NetBeansProjects/Libraries/Apache Commons/commons-poi-excelant-3.13-20150929.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Sammy Caychingco/Documents/NetBeansProjects/Libraries/Apache Commons/commons-poi-ooxml-3.13-20150929.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Sammy Caychingco/Documents/NetBeansProjects/Libraries/Apache Commons/commons-poi-ooxml-schemas-3.13-20150929.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Sammy Caychingco/Documents/NetBeansProjects/Libraries/Apache Commons/commons-poi-scratchpad-3.13-20150929.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Sammy Caychingco/Documents/NetBeansProjects/Libraries/Apache Commons/commons-poi-xmlbeans-5.1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Sammy Caychingco/Documents/NetBeansProjects/Libraries/libsvm.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Sammy Caychingco/Documents/NetBeansProjects/Libraries/weka.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

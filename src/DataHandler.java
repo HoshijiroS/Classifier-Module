@@ -43,9 +43,9 @@ public class DataHandler {
    }
 
    /* Split the dataset into training and testing splits using the 
-    * 10-fold cross validation method.
+    * n-fold cross validation method.
     * */
-   public void crossValidationSplit(int numberOfFolds) {
+   public Instances crossValidationSplit(int numberOfFolds) {
       split = new Instances[2][numberOfFolds];
 
       for (int i = 0; i < numberOfFolds; i++) {
@@ -55,6 +55,8 @@ public class DataHandler {
 
       trainingSplits = split[0];
       testingSplits = split[1];
+      
+      return data;
    }
 
    public Instances[] getTrainingSplit() {
@@ -87,9 +89,5 @@ public class DataHandler {
 
    public int getClassInstances() {
       return this.classInstanceCount;
-   }
-
-   public Instances getData() {
-      return this.data;
    }
 }

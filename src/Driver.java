@@ -3,9 +3,17 @@
  */
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Scanner;
+
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
@@ -19,28 +27,36 @@ import weka.core.Instances;
 public class Driver {
 
    public static void main(String[] args) throws Exception {
+	   
       // Read the arff file and allow the DataHandler class to process
       // it for necessary parameters
       FileHandler handler = new FileHandler();
       BufferedReader datafile = handler.readFile();
 
       DataHandler dataHandler = new DataHandler(datafile);
-
+      
+      // Train data classes using 10-fold cross validation
+      Instances data = dataHandler.crossValidationSplit(10);
+      
       // Get data classes
       String[] dataClasses = dataHandler.getDataClasses();
+      
+      // Save model here
       
       int numClasses = dataHandler.getSize();
       int numInstances = dataHandler.getClassInstances();
 
+      // Load models here
+      
       // Use a set of 5 classifiers
       Classifier[] models = {new NaiveBayes(), // Naive Bayes
-            new LibSVM(), // SVM
-            new MultilayerPerceptron(), // Neural Network
+//            new LibSVM(), // SVM
+//            new MultilayerPerceptron(), // Neural Network
             new IBk(), // K-Nearest Neighbor
             new BayesNet() // Maximum Entropy
 
       };
-
+      
       libsvm.svm.svm_set_print_string_function(new libsvm.svm_print_interface() {
          @Override
          // Disables the geeky SVM output
@@ -53,7 +69,6 @@ public class Driver {
       }));
 
       HashMap<Integer, Model> predictionPerModel = new HashMap<Integer, Model>();
-      Instances data = dataHandler.getData();
 
       // Store every group of predictions for current model in a FastVector
       FastVector predictions = new FastVector();
@@ -61,7 +76,7 @@ public class Driver {
       // Run for each model
       for (int j = 0; j < models.length; j++) {
          System.out.println("*********************************");
-         Model model = new Model();
+         Model model = new Model(models[j].getClass().getSimpleName());
 
          // For each training-testing split pair, train and test the classifier
          predictions = model.classify(models[j], data);
@@ -69,10 +84,60 @@ public class Driver {
          // Get and set the accuracy of the models given their predictions
          model.calculateAccuracy(predictions);
          model.setPredictions(data, predictions);
-
+         
          predictionPerModel.put(j, model);
          System.out.println("*********************************");
       }
+      
+      /*
+       * Rule Based Classifier Models
+       */
+
+      Model termFrequencyModel = new Model("Term Frequency Model");
+      termFrequencyModel.setWeight(0);
+      Model socalModel = new Model("SOCAL");
+      socalModel.setWeight(0);
+      
+      //Read carmen's 330 annotated articles
+      File file = new File("Input/Carmen330Sample.xlsx");
+      XSSFWorkbook wb;
+      try {
+         wb = new XSSFWorkbook(file);
+         XSSFSheet sheet = wb.getSheetAt(0);
+         
+         ArrayList<String> articles = new ArrayList<String>();
+         ArrayList<String> sentiments = new ArrayList<String>();
+         Iterator rows = sheet.iterator();
+         rows.next();
+         while(rows.hasNext()){
+           XSSFRow row = (XSSFRow) rows.next();
+           if(row.getCell(0) != null){
+             articles.add(row.getCell(0).getStringCellValue());
+             sentiments.add(row.getCell(1).getStringCellValue());
+           }
+         }
+         
+         //Create new TermFrequency
+         TermFrequency tf = new TermFrequency(articles, sentiments);
+         
+         //Set values for TermFrequency's Model
+         termFrequencyModel.setAccuracy(tf.getAccuracy());
+         termFrequencyModel.setPredictionList(tf.getClassifierPredictions());
+         
+         //Create new SOCAL
+         SOCAL sc = new SOCAL(articles, sentiments);
+         socalModel.setAccuracy(sc.getAccuracy());
+         socalModel.setPredictionList(sc.getClassifierPredictions());
+         
+      }catch(Exception e){
+        e.printStackTrace();
+      }
+      
+      int lastModel = models.length-1;
+      predictionPerModel.put(++lastModel, termFrequencyModel);
+      predictionPerModel.put(++lastModel, socalModel);     
+      
+      
 
       // Aggregate the predictions made by the set of classifiers
       Aggregator aggr =
