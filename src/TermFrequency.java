@@ -136,7 +136,6 @@ public class TermFrequency extends RuleBasedClassifier{
                    }
                    break;
                case "NEUTRAL":
-                   System.out.println("NEUTRAL");
                    if(neutHash.containsKey(word)){
                        neutFreq--;
                    }

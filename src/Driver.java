@@ -4,6 +4,7 @@
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -41,7 +42,9 @@ public class Driver {
       // Get data classes
       String[] dataClasses = dataHandler.getDataClasses();
       
-      // Save model here
+      PrintStream out = new PrintStream(new FileOutputStream("output.txt"));
+      System.setOut(out);
+      
       
       int numClasses = dataHandler.getSize();
       int numInstances = dataHandler.getClassInstances();

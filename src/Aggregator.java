@@ -71,16 +71,11 @@ public class Aggregator {
       }
    }
    
-   /*
-    * + 1 for the rule based classifiers, wala pang code ni socal
-    */
    public void populateModelList() {
      //+2 for 2 Rule-based classifiers
       for (int i = 0; i < this.models.length + 2; i++) {
          modelList.add(predictionPerModel.get(i));
       }
-      System.out.println("MODEL SIZE1: " + predictionPerModel.size());
-      System.out.println("");
    }
 
    public void populateModifiedPredList() {
@@ -137,14 +132,13 @@ public class Aggregator {
             
             
             for (int k = 0; k < numClasses; k++) {
-               if (classIds[instance] == dataClasses[k]) {
+            	if (classIds[instance].trim().equalsIgnoreCase(dataClasses[k])) {
                   classCounters[k] = classCounters[k] + modelList.get(i).getWeight();
                }
             }
          }
-    	 System.out.println("MODEL SIZE2: " + modelList.size());
-    	 
-    	 System.out.println("");
+
+    	  System.out.println("");
     	 System.out.print("Tallied results are");
     	 
          for (int i = 0; i < numClasses; i++) {
@@ -194,6 +188,8 @@ public class Aggregator {
          tieCount = 0;
       }
       
+      
+      
       double aggrAccuracy = calculateAggrAccuracy(modPredictions);
       System.out.println("---------------------------------");
       System.out.println("Modified Accuracy: " + String.format("%.4f%%", aggrAccuracy));
@@ -221,7 +217,7 @@ public class Aggregator {
    public void setWeights(int config) {
       int accuracy = 0;
 
-      for (int i = 0; i < models.length; i++) {
+      for (int i = 0; i < models.length + 2; i++) {
          if (config == 1) {
             accuracy = (int) modelList.get(i).getAccuracy();
 
