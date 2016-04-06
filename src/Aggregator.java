@@ -44,9 +44,10 @@ public class Aggregator {
    private double aggrPred;
    private int tieCount;
 
-   public Aggregator(Classifier[] model, HashMap<Integer, Model> predictionPerModel,
-         String[] dataClasses, int numInstances, int numClasses, FastVector predictions) {
-      this.models = model;
+   public Aggregator(Classifier[] model, 
+		  HashMap<Integer, Model> predictionPerModel, String[] dataClasses, 
+		  int numInstances, int numClasses, FastVector predictions) {
+	  this.models = model;
       this.predictionPerModel = predictionPerModel;
       this.numInstances = numInstances;
       this.predictions = predictions;
@@ -208,41 +209,23 @@ public class Aggregator {
 
             if (accuracy > 90) {
                modelList.get(i).setWeight(9);
-            }
-
-            else if (accuracy > 80) {
+            } else if (accuracy > 80) {
                modelList.get(i).setWeight(8);
-            }
-
-            else if (accuracy > 70) {
+            } else if (accuracy > 70) {
                modelList.get(i).setWeight(7);
-            }
-
-            else if (accuracy > 60) {
+            } else if (accuracy > 60) {
                modelList.get(i).setWeight(6);
-            }
-
-            else if (accuracy > 50) {
+            } else if (accuracy > 50) {
                modelList.get(i).setWeight(5);
-            }
-
-            else if (accuracy > 40) {
+            } else if (accuracy > 40) {
                modelList.get(i).setWeight(4);
-            }
-
-            else if (accuracy > 30) {
+            } else if (accuracy > 30) {
                modelList.get(i).setWeight(3);
-            }
-
-            else if (accuracy > 20) {
+            } else if (accuracy > 20) {
                modelList.get(i).setWeight(2);
-            }
-
-            else if (accuracy > 10) {
+            } else if (accuracy > 10) {
                modelList.get(i).setWeight(1);
             }
-         } else if (config == 0) {
-            modelList.get(i).setWeight(1);
          }
       }
    }

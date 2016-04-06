@@ -38,10 +38,10 @@ public class Driver {
             new MultilayerPerceptron(), // Neural Network
             new IBk(), // K-Nearest Neighbor
             new BayesNet() // Maximum Entropy
-
       };
 
-      libsvm.svm.svm_set_print_string_function(new libsvm.svm_print_interface() {
+      libsvm.svm.svm_set_print_string_function(
+		  new libsvm.svm_print_interface() {
          @Override
          // Disables the geeky SVM output
          public void print(String s) {}
@@ -52,7 +52,7 @@ public class Driver {
          public void write(int b) {}
       }));
 
-      HashMap<Integer, Model> predictionPerModel = new HashMap<Integer, Model>();
+      HashMap<Integer, Model> predictionPerModel = new HashMap<>();
       Instances data = dataHandler.getData();
 
       // Store every group of predictions for current model in a FastVector
@@ -76,7 +76,8 @@ public class Driver {
 
       // Aggregate the predictions made by the set of classifiers
       Aggregator aggr =
-            new Aggregator(models, predictionPerModel, dataClasses, numInstances, numClasses, predictions);
+        new Aggregator(models, predictionPerModel, dataClasses, 
+    		numInstances, numClasses, predictions);
       aggr.populateModelList();
 
       // Stores the list of aggregated predictions
