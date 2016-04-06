@@ -1,4 +1,4 @@
-/*
+/**
  * The Model class produces predictions of a certain instance's classification based on the features
  * it is given.
  * 
@@ -23,23 +23,16 @@ public class Model {
    private double accuracy;
    private int weight;
 
-   /* 
-    * Classify instances 
-    */
+   /** Classify instances */
    public FastVector classify(Classifier model, Instances data) throws Exception {
       FastVector predictions = new FastVector();
       Evaluation evaluation = new Evaluation(data);
 
       model.buildClassifier(data);
-      /*
-       * Use 10-fold cross validation to train the model 
-       */
+      /** Use 10-fold cross validation to train the model */
       evaluation.crossValidateModel(model, data, 10, new Random(1));
 
-      /*
-       * Output data regarding the model such as: kappa statistic,
-       * mean absolute error, etc
-       */
+      /** Output data regarding the model such as: kappa statistic, mean absolute error, etc */
       predictions = evaluation.predictions();
       System.out.println(evaluation.toSummaryString("---------------------------------\n "
             + model.getClass().getSimpleName() + "\n---------------------------------", false));
@@ -47,9 +40,7 @@ public class Model {
       return predictions;
    }
 
-   /*
-    * Convert the predictions (returned as double values) into a readable String value
-    */
+   /** Convert the predictions (returned as double values) into a readable String value */
    public void setPredictions(Instances data, FastVector predictions) {
       NominalPrediction np;
       double predicted;
@@ -67,7 +58,7 @@ public class Model {
       return this.predictionList;
    }
 
-   /*
+   /**
     * Get the accuracy of each model by comparing the prediction against the actual classification
     * of the instance and computing how many times it makes the correct classification over the
     * number of predictions made.
