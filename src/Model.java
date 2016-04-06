@@ -23,17 +23,23 @@ public class Model {
    private double accuracy;
    private int weight;
 
-   // Classify instances
+   /* 
+    * Classify instances 
+    */
    public FastVector classify(Classifier model, Instances data) throws Exception {
       FastVector predictions = new FastVector();
       Evaluation evaluation = new Evaluation(data);
 
       model.buildClassifier(data);
-      // Use 10-fold cross validation to train the model
+      /*
+       * Use 10-fold cross validation to train the model 
+       */
       evaluation.crossValidateModel(model, data, 10, new Random(1));
 
-      // Output data regarding the model such as: kappa statistic,
-      // mean absolute error, etc
+      /*
+       * Output data regarding the model such as: kappa statistic,
+       * mean absolute error, etc
+       */
       predictions = evaluation.predictions();
       System.out.println(evaluation.toSummaryString("---------------------------------\n "
             + model.getClass().getSimpleName() + "\n---------------------------------", false));

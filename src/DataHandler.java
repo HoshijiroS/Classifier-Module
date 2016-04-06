@@ -31,14 +31,20 @@ public class DataHandler {
    public DataHandler(BufferedReader datafile) throws IOException {
       data = new Instances(datafile);
 
-      // Set the class index as the index of the last attribute
+      /* 
+       * Set the class index as the index of the last attribute 
+       */
       classIndex = data.numAttributes() - 1;
       data.setClassIndex(classIndex);
 
-      // Set the size of the dataset as the number of instances
+      /* 
+       * Set the size of the dataset as the number of instances
+       */
       size = data.numClasses();
-      // Set the number of attributes the class has given the number
-      // of instances the dataset has
+      /* 
+       * Set the number of attributes the class has given the number
+       * of instances the dataset has
+       */
       classInstanceCount = data.numInstances();
    }
 
