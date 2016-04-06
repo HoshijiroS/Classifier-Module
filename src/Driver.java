@@ -33,11 +33,12 @@ public class Driver {
       int numInstances = dataHandler.getClassInstances();
 
       // Use a set of 5 classifiers
-      Classifier[] models = {new NaiveBayes(), // Naive Bayes
-            // new LibSVM(), // SVM
-            // new MultilayerPerceptron(), // Neural Network
-            new IBk(), // K-Nearest Neighbor
-            new BayesNet() // Maximum Entropy
+      Classifier[] models = {
+	     new NaiveBayes(), // Naive Bayes
+         // new LibSVM(), // SVM
+         // new MultilayerPerceptron(), // Neural Network
+         new IBk(), // K-Nearest Neighbor
+         new BayesNet() // Maximum Entropy
       };
 
       libsvm.svm.svm_set_print_string_function(
