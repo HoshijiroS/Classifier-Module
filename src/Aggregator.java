@@ -185,7 +185,9 @@ public class Aggregator {
          System.out.println("Final Prediction: " + modDataClasses[(int) modPredictions[instance]]);
          System.out.println(" ");
 
-         /* Initialize values
+         /** 
+          * Initialize values 
+          */
          temp = 0.0;
          weightTotal = 0;
          tieCount = 0;
@@ -200,6 +202,7 @@ public class Aggregator {
       System.out.println("Modified Accuracy: " + String.format("%.4f%%", aggrAccuracy));
 
       return aggrPredictions;
+      
    }
 
    /*
