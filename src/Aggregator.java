@@ -82,7 +82,7 @@ public class Aggregator {
          modDataClasses[i] = dataClasses[i];
       }
 
-      // Set the last class to "NONE" in order to accommodate a variation in the counting of ties.
+      /*Set the last class to "NONE" in order to accommodate a variation in the counting of ties. */
       modDataClasses[dataClasses.length] = "NONE";
    }
 
@@ -114,7 +114,7 @@ public class Aggregator {
       int weightTotal = 0;
 
       setWeights(config);
-      // Tally predictions made by the models
+      /* Tally predictions made by the models */
       for (int instance = 0; instance < numInstances; instance++) {
          for (int i = 0; i < modelList.size(); i++) {
             String[] classIds = modelList.get(i).getPredictions();
@@ -127,7 +127,7 @@ public class Aggregator {
             }
          }
 
-         // Display the probabilities per instance
+         /* Display the probabilities per instance */
          System.out.print("Instance [" + (instance + 1) + "]:");
 
          for (int i = 0; i < numClasses; i++) {
@@ -138,8 +138,10 @@ public class Aggregator {
                System.out.print(
                      " " + dataClasses[i] + ": " + String.format("%.4f%%", likelihood) + " ");
 
-               // Get the aggregated prediction by taking the predicted
-               // class with the highest likelihood value
+               /*
+               * Get the aggregated prediction by taking the predicted
+               * class with the highest likelihood value
+               */
                if (temp < likelihood) {
                   temp = likelihood;
                   aggrPred = (double) i;
@@ -151,17 +153,17 @@ public class Aggregator {
          }
          System.out.println(" ");
 
-         // Add aggregated prediction to list
+         /* Add aggregated prediction to list */
          modPredictions[instance] = aggrPred;
          aggrPredictions[instance] = aggrPred;
 
-         // Check for ties
+         /* Check for ties */
          populateModifiedPredList();
          for (int i = 0; i < dataClasses.length; i++) {
             if (likelihoodList[instance] == likelihoodPerInstance[instance][i]) {
                tieCount++;
                if (tieCount > 1) {
-                  // Set the classification to "NONE" if ties are present
+                  /* Set the classification to "NONE" if ties are present */
                   modPredictions[instance] = dataClasses.length;
                }
             }
@@ -170,14 +172,16 @@ public class Aggregator {
          System.out.println("Final Prediction: " + modDataClasses[(int) modPredictions[instance]]);
          System.out.println(" ");
 
-         // Initialize values
+         /* Initialize values
          temp = 0.0;
          weightTotal = 0;
          tieCount = 0;
       }
 
-      // Display the accuracy of the model if it is set to not make a classification in the presence
-      // of ties
+      /*
+      * Display the accuracy of the model if it is set to not make a classification in the presence
+      * of ties
+      */
       double aggrAccuracy = calculateAggrAccuracy(modPredictions);
       System.out.println("---------------------------------");
       System.out.println("Modified Accuracy: " + String.format("%.4f%%", aggrAccuracy));
@@ -269,7 +273,7 @@ public class Aggregator {
     * class prediction made by the meta-classifier.
     */
    public void stackingWithSVM(Instances trainingSet) throws Exception {
-      // Set stacking classifier to SVM
+      /* Set stacking classifier to SVM */
       Stacking stackSVM = new Stacking();
       LibSVM libsvm = new LibSVM();
       Model model = new Model();
@@ -278,18 +282,18 @@ public class Aggregator {
       stackSVM.setMetaClassifier(libsvm);
       Evaluation eval = new Evaluation(trainingSet);
 
-      // Use 10-fold cross validation in order to train the meta-classifier
+      /* Use 10-fold cross validation in order to train the meta-classifier */
       eval.crossValidateModel(stackSVM, trainingSet, 10, new Random(1));
       System.out.println(eval.toSummaryString(
             "---------------------------------\n Stacking with SVM\n---------------------------------",
             false));
 
-      // Get predictions made by the meta-classifier
+      /* Get predictions made by the meta-classifier */
       FastVector predictions = eval.predictions();
       model.setPredictions(trainingSet, predictions);
       String[] predList = model.getPredictions();
 
-      // Display the prediction per instance
+      /* Display the prediction per instance */
       for (int i = 0; i < predList.length; i++) {
          System.out.println("Instance [" + (i + 1) + "]: " + predList[i]);
          System.out.println(" ");
