@@ -8,7 +8,7 @@
  * 
  * dataset divided into a training set and a testing set.
  * 
- * trainingSplits: training split of the dataset. 
+ * trainingSplits: training split of the dataset.
  * 
  * testingSplits: testing split of the dataset.
  * 
@@ -31,20 +31,20 @@ public class DataHandler {
    public DataHandler(BufferedReader datafile) throws IOException {
       data = new Instances(datafile);
 
-      //Set the class index as the index of the last attribute
+      // Set the class index as the index of the last attribute
       classIndex = data.numAttributes() - 1;
       data.setClassIndex(classIndex);
 
-      //Set the size of the dataset as the number of instances
+      // Set the size of the dataset as the number of instances
       size = data.numClasses();
-      //Set the number of attributes the class has given the number
-      //of instances the dataset has
+      // Set the number of attributes the class has given the number
+      // of instances the dataset has
       classInstanceCount = data.numInstances();
    }
 
-   /* Split the dataset into training and testing splits using the 
-    * 10-fold cross validation method.
-    * */
+   /*
+    * Split the dataset into training and testing splits using the 10-fold cross validation method.
+    */
    public void crossValidationSplit(int numberOfFolds) {
       split = new Instances[2][numberOfFolds];
 
@@ -65,8 +65,9 @@ public class DataHandler {
       return this.testingSplits;
    }
 
-   /* Convert the data class value into a readable String format.
-    * */
+   /*
+    * Convert the data class value into a readable String format.
+    */
    public String[] getDataClasses() {
       classInstances = new String[size];
 

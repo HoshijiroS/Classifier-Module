@@ -83,6 +83,7 @@ public class Aggregator {
          modDataClasses[i] = dataClasses[i];
       }
 
+      // Set the last class to "NONE" in order to accommodate a variation in the counting of ties.
       modDataClasses[dataClasses.length] = "NONE";
    }
 
@@ -94,15 +95,14 @@ public class Aggregator {
    public double calculateAggrAccuracy(double[] aggrPredictions) {
       double correct = 0;
       int ties = 0;
-      
+
       for (int i = 0; i < this.predictions.size(); i++) {
          NominalPrediction np = (NominalPrediction) this.predictions.elementAt(i);
-         if(!(aggrPredictions[i] == dataClasses.length)){
+         if (!(aggrPredictions[i] == dataClasses.length)) {
             if (aggrPredictions[i] == np.actual()) {
                correct++;
             }
-         }
-         else {
+         } else {
             ties++;
          }
       }
@@ -113,7 +113,7 @@ public class Aggregator {
 
    public double[] classify(int config) {
       int weightTotal = 0;
-      
+
       setWeights(config);
       // Tally predictions made by the models
       for (int instance = 0; instance < numInstances; instance++) {
@@ -155,13 +155,14 @@ public class Aggregator {
          // Add aggregated prediction to list
          modPredictions[instance] = aggrPred;
          aggrPredictions[instance] = aggrPred;
-         
+
          // Check for ties
          populateModifiedPredList();
          for (int i = 0; i < dataClasses.length; i++) {
             if (likelihoodList[instance] == likelihoodPerInstance[instance][i]) {
                tieCount++;
                if (tieCount > 1) {
+                  // Set the classification to "NONE" if ties are present
                   modPredictions[instance] = dataClasses.length;
                }
             }
@@ -175,11 +176,13 @@ public class Aggregator {
          weightTotal = 0;
          tieCount = 0;
       }
-      
+
+      // Display the accuracy of the model if it is set to not make a classification in the presence
+      // of ties
       double aggrAccuracy = calculateAggrAccuracy(modPredictions);
       System.out.println("---------------------------------");
       System.out.println("Modified Accuracy: " + String.format("%.4f%%", aggrAccuracy));
-      
+
       return aggrPredictions;
    }
 
