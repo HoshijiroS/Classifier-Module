@@ -28,57 +28,64 @@ public class Driver {
 
       DataHandler dataHandler = new DataHandler(datafile);
 
-      /* Get data classes */
+      /* 
+       * Get data classes 
+       */
       String[] dataClasses = dataHandler.getDataClasses();
 
       int numClasses = dataHandler.getSize();
       int numInstances = dataHandler.getClassInstances();
 
 <<<<<<< HEAD
-      /* Use a set of 5 classifiers */
-      Classifier[] models = {new NaiveBayes(), /* Naive Bayes
-            /* new LibSVM(), /* SVM
-            /* new MultilayerPerceptron(), /* Neural Network
-            new IBk(), /* K-Nearest Neighbor
-            new BayesNet() /* Maximum Entropy
-
-=======
-      // Use a set of 5 classifiers
+      /* 
+       * Use a set of 5 classifiers 
+       */
       Classifier[] models = {new NaiveBayes(), // Naive Bayes
-            // new LibSVM(), // SVM
+            // new LibSVM(), //SVM
             // new MultilayerPerceptron(), // Neural Network
             new IBk(), // K-Nearest Neighbor
             new BayesNet() // Maximum Entropy
->>>>>>> ea36dbbedf88368033bd4c71a520f1be9db6d2a8
       };
 
       libsvm.svm.svm_set_print_string_function(
 		  new libsvm.svm_print_interface() {
          @Override
-         /* Disables the geeky SVM output */
+         /* 
+          * Disables the geeky SVM output 
+          */
          public void print(String s) {}
       });
 
       System.setErr(new PrintStream(new OutputStream() {
-         /* Disables the warnings returned by the classifiers */
+         /* 
+          * Disables the warnings returned by the classifiers
+          */
          public void write(int b) {}
       }));
 
       HashMap<Integer, Model> predictionPerModel = new HashMap<>();
       Instances data = dataHandler.getData();
 
-      /* Store every group of predictions for current model in a FastVector */
+      /* 
+       * Store every group of predictions for current model in a FastVector 
+       */
       FastVector predictions = new FastVector();
 
-      /* Run for each model */
+      /* 
+       * Run for each model 
+       */
       for (int j = 0; j < models.length; j++) {
          System.out.println("*********************************");
          Model model = new Model();
 
-         /* For each training-testing split pair, train and test the classifier */
+         /* 
+          * For each training-testing split pair, train and test the classifier 
+          */
          predictions = model.classify(models[j], data);
 
-         /* Get and set the accuracy of the models given their predictions */
+         /* 
+          * Get and set the accuracy of the models given their predictions 
+          */
          model.calculateAccuracy(predictions);
          model.setPredictions(data, predictions);
 
@@ -86,27 +93,29 @@ public class Driver {
          System.out.println("*********************************");
       }
 
-<<<<<<< HEAD
-      /* Aggregate the predictions made by the set of classifiers */
-      Aggregator aggr = new Aggregator(models, predictionPerModel, dataClasses, numInstances,
-            numClasses, predictions);
-=======
-      // Aggregate the predictions made by the set of classifiers
+      /*
+       * Aggregate the predictions made by the set of classifiers
+       */
       Aggregator aggr =
         new Aggregator(models, predictionPerModel, dataClasses, 
     		numInstances, numClasses, predictions);
->>>>>>> ea36dbbedf88368033bd4c71a520f1be9db6d2a8
       aggr.populateModelList();
 
-      /* Stores the list of aggregated predictions */
+      /*
+       * Stores the list of aggregated predictions 
+       */
       double[] aggrPredictions;
       double aggrAccuracy = 0.0;
 
       System.out.println("*********************************");
-      /* Majority Voting */
+      /* 
+       * Majority Voting 
+       */
       aggrPredictions = aggr.majorityVoting();
 
-      /* Get accuracy */
+      /* 
+       * Get accuracy 
+       */
       aggrAccuracy = aggr.calculateAggrAccuracy(aggrPredictions);
 
       System.out.println("---------------------------------");
@@ -114,10 +123,14 @@ public class Driver {
       System.out.println("*********************************");
 
       System.out.println("*********************************");
-      /* Weighted Majority Voting */
+      /* 
+       * Weighted Majority Voting 
+       */
       aggrPredictions = aggr.weightedMajorityVoting();
 
-      /* Get accuracy */
+      /* 
+       * Get accuracy 
+       */
       aggrAccuracy = aggr.calculateAggrAccuracy(aggrPredictions);
 
       System.out.println("---------------------------------");
@@ -125,7 +138,9 @@ public class Driver {
       System.out.println("*********************************");
 
       System.out.println("*********************************");
-      /* Stacking with SVM */
+      /* 
+       * Stacking with SVM 
+       */
       aggr.stackingWithSVM(data);
       System.out.println("*********************************");
    }
