@@ -34,25 +34,26 @@ public class Driver {
 
       // Use a set of 5 classifiers
       Classifier[] models = {new NaiveBayes(), // Naive Bayes
-            // new LibSVM(), // SVM
-            // new MultilayerPerceptron(), // Neural Network
+            new LibSVM(), // SVM
+            new MultilayerPerceptron(), // Neural Network
             new IBk(), // K-Nearest Neighbor
             new BayesNet() // Maximum Entropy
-
       };
 
-      libsvm.svm.svm_set_print_string_function(new libsvm.svm_print_interface() {
-         @Override
-         // Disables the geeky SVM output
-         public void print(String s) {}
-      });
+      libsvm.svm
+            .svm_set_print_string_function(new libsvm.svm_print_interface() {
+               @Override
+               // Disables the geeky SVM output
+               public void print(String s) {}
+            });
 
       System.setErr(new PrintStream(new OutputStream() {
          // Disables the warnings returned by the classifiers
          public void write(int b) {}
       }));
 
-      HashMap<Integer, Model> predictionPerModel = new HashMap<Integer, Model>();
+      HashMap<Integer, Model> predictionPerModel =
+            new HashMap<Integer, Model>();
       Instances data = dataHandler.getData();
 
       // Store every group of predictions for current model in a FastVector
@@ -75,8 +76,8 @@ public class Driver {
       }
 
       // Aggregate the predictions made by the set of classifiers
-      Aggregator aggr = new Aggregator(models, predictionPerModel, dataClasses, numInstances,
-            numClasses, predictions);
+      Aggregator aggr = new Aggregator(models, predictionPerModel, dataClasses,
+            numInstances, numClasses, predictions);
       aggr.populateModelList();
 
       // Stores the list of aggregated predictions
