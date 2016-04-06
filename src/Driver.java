@@ -34,6 +34,7 @@ public class Driver {
       int numClasses = dataHandler.getSize();
       int numInstances = dataHandler.getClassInstances();
 
+<<<<<<< HEAD
       /* Use a set of 5 classifiers */
       Classifier[] models = {new NaiveBayes(), /* Naive Bayes
             /* new LibSVM(), /* SVM
@@ -41,9 +42,18 @@ public class Driver {
             new IBk(), /* K-Nearest Neighbor
             new BayesNet() /* Maximum Entropy
 
+=======
+      // Use a set of 5 classifiers
+      Classifier[] models = {new NaiveBayes(), // Naive Bayes
+            // new LibSVM(), // SVM
+            // new MultilayerPerceptron(), // Neural Network
+            new IBk(), // K-Nearest Neighbor
+            new BayesNet() // Maximum Entropy
+>>>>>>> ea36dbbedf88368033bd4c71a520f1be9db6d2a8
       };
 
-      libsvm.svm.svm_set_print_string_function(new libsvm.svm_print_interface() {
+      libsvm.svm.svm_set_print_string_function(
+		  new libsvm.svm_print_interface() {
          @Override
          /* Disables the geeky SVM output */
          public void print(String s) {}
@@ -54,7 +64,7 @@ public class Driver {
          public void write(int b) {}
       }));
 
-      HashMap<Integer, Model> predictionPerModel = new HashMap<Integer, Model>();
+      HashMap<Integer, Model> predictionPerModel = new HashMap<>();
       Instances data = dataHandler.getData();
 
       /* Store every group of predictions for current model in a FastVector */
@@ -76,9 +86,16 @@ public class Driver {
          System.out.println("*********************************");
       }
 
+<<<<<<< HEAD
       /* Aggregate the predictions made by the set of classifiers */
       Aggregator aggr = new Aggregator(models, predictionPerModel, dataClasses, numInstances,
             numClasses, predictions);
+=======
+      // Aggregate the predictions made by the set of classifiers
+      Aggregator aggr =
+        new Aggregator(models, predictionPerModel, dataClasses, 
+    		numInstances, numClasses, predictions);
+>>>>>>> ea36dbbedf88368033bd4c71a520f1be9db6d2a8
       aggr.populateModelList();
 
       /* Stores the list of aggregated predictions */
