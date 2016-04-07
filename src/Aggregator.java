@@ -116,6 +116,7 @@ public class Aggregator {
       int weightTotal = 0;
 
       setWeights(config);
+      
       /** Tally predictions made by the models */
       for (int instance = 0; instance < numInstances; instance++) {
          for (int i = 0; i < modelList.size(); i++) {

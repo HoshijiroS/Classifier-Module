@@ -21,7 +21,9 @@ import java.io.IOException;
 import weka.core.Instances;
 
 public class DataHandler {
-   private int size, classIndex, classInstanceCount;
+   private int size;
+   private int classIndex;
+   private int classInstanceCount;
    private Instances data;
    private Instances[][] split;
    private Instances[] trainingSplits;
