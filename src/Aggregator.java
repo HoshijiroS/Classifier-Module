@@ -70,7 +70,7 @@ public class Aggregator {
          classCounters[i] = 0;
       }
    }
-
+   
    public void populateModelList() {
       for (int i = 0; i < this.models.length; i++) {
          modelList.add(predictionPerModel.get(i));
@@ -190,7 +190,6 @@ public class Aggregator {
       System.out.println("Modified Accuracy: " + String.format("%.4f%%", aggrAccuracy));
 
       return aggrPredictions;
-
    }
 
    /**

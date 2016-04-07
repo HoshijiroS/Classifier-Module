@@ -13,10 +13,13 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class FileHandler {
    public BufferedReader readFile() {
       String filename = null;
+      
       JFileChooser chooser = new JFileChooser();
+      int returnVal = chooser.showOpenDialog(null);
+      
       FileNameExtensionFilter filter = new FileNameExtensionFilter("ARFF files", "arff");
       chooser.setFileFilter(filter);
-      int returnVal = chooser.showOpenDialog(null);
+      
       if (returnVal == JFileChooser.APPROVE_OPTION) {
          System.out.println("You chose to open this file: " + chooser.getSelectedFile().getName());
          filename = chooser.getSelectedFile().getAbsolutePath();
