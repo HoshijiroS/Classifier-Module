@@ -34,8 +34,8 @@ public class Driver {
       /** Use a set of 5 classifiers */
       Classifier[] models = {
             new NaiveBayes(), /** Naive Bayes */
-            new LibSVM(), /** SVM */
-            new MultilayerPerceptron(), /** Neural Network */
+           // new LibSVM(), /** SVM */
+           // new MultilayerPerceptron(), /** Neural Network */
             new IBk(), /** K-Nearest Neighbor */
             new BayesNet() /** Maximum Entropy */
       };
